@@ -308,7 +308,7 @@ ShaderViewer::ShaderViewer(ICaptureContext &ctx, QWidget *parent)
 
     QVBoxLayout *framelayout = new QVBoxLayout(m_DisassemblyFrame);
     framelayout->setSpacing(0);
-    framelayout->setMargin(0);
+    framelayout->setContentsMargins(0, 0, 0, 0);
     framelayout->addWidget(m_DisassemblyToolbar);
     framelayout->addWidget(m_DisassemblyView);
 
@@ -2754,15 +2754,15 @@ void ShaderViewer::applyBackwardsChange()
     return;
 
 #if SHADER_VARIABLE_CHANGE_CONSISTENCY_CHECKS
-  QSet<rdcstr> changedVariables;
+  QSet<QString> changedVariables;
 #endif    // #if SHADER_VARIABLE_CHANGE_CONSISTENCY_CHECKS
   const ShaderVariable nullChange;
   for(const ShaderVariableChange &c : GetCurrentState().changes)
   {
 #if SHADER_VARIABLE_CHANGE_CONSISTENCY_CHECKS
-    rdcstr varName = c.before.name.empty() ? c.after.name : c.before.name;
+    QString varName = QString(c.before.name.empty() ? c.after.name : c.before.name);
     if(changedVariables.contains(varName))
-      qCritical("Multiple ShaderVariableChange's for '%s'", varName.c_str());
+      qCritical("Multiple ShaderVariableChange's for '%s'", varName.toUtf8().data());
     changedVariables.insert(varName);
 #endif    // #if SHADER_VARIABLE_CHANGE_CONSISTENCY_CHECKS
     // if the before name is empty, this is a variable that came into scope/was created
@@ -2857,15 +2857,15 @@ void ShaderViewer::applyForwardsChange()
   rdcarray<AccessedResourceData> newAccessedResources;
 
 #if SHADER_VARIABLE_CHANGE_CONSISTENCY_CHECKS
-  QSet<rdcstr> changedVariables;
+  QSet<QString> changedVariables;
 #endif    // #if SHADER_VARIABLE_CHANGE_CONSISTENCY_CHECKS
   const ShaderVariable nullChange;
   for(const ShaderVariableChange &c : GetCurrentState().changes)
   {
 #if SHADER_VARIABLE_CHANGE_CONSISTENCY_CHECKS
-    rdcstr varName = c.after.name.empty() ? c.before.name : c.after.name;
+    QString varName = QString(c.after.name.empty() ? c.before.name : c.after.name);
     if(changedVariables.contains(varName))
-      qCritical("Multiple ShaderVariableChange's for '%s'", varName.c_str());
+      qCritical("Multiple ShaderVariableChange's for '%s'", varName.toUtf8().data());
     changedVariables.insert(varName);
 #endif    // #if SHADER_VARIABLE_CHANGE_CONSISTENCY_CHECKS
     // if the after name is empty, this is a variable going out of scope/being deleted

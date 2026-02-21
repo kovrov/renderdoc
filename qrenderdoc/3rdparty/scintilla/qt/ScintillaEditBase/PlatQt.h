@@ -16,6 +16,7 @@
 #include <QPaintDevice>
 #include <QPainter>
 #include <QHash>
+#include <QStringDecoder>
 
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
@@ -59,7 +60,7 @@ private:
 	bool unicodeMode;
 	int codePage;
 	const char *codecName;
-	QTextCodec *codec;
+	QStringDecoder codec;
 
 public:
 	SurfaceImpl();
