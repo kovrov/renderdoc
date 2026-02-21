@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+# Debian rules for renderdoc
+# See README.source for instructions on preparing vendor archives before building.
+
+include /usr/share/dpkg/default.mk
+include /usr/share/dpkg/architecture.mk
+
+export DH_VERBOSE=1
+
+# Vendor archives bundled in the source package (see debian/vendor/).
+# These are passed to CMake so the build does not need network access.
+# pcre is NOT vendored — libpcre3-dev from the distro is used instead.
+VENDOR_DIR      := $(CURDIR)/debian/vendor
+SWIG_ARCHIVE    := $(VENDOR_DIR)/swig-renderdoc-modified-7.zip
+
+# Out-of-source build directory (renderdoc forbids in-source builds).
+BUILD_DIR := $(CURDIR)/debian/build
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	mkdir -p $(BUILD_DIR)
+	cd $(BUILD_DIR) && cmake $(CURDIR) \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_VERSION_STABLE=ON \
+		-DBUILD_VERSION_DIST_NAME="Ubuntu" \
+		-DBUILD_VERSION_DIST_VER="$(DEB_VERSION_UPSTREAM)" \
+		-DBUILD_VERSION_DIST_CONTACT="https://github.com/baldurk/renderdoc/issues" \
+		-DRENDERDOC_SWIG_PACKAGE="file://$(SWIG_ARCHIVE)" \
+		-DVULKAN_LAYER_FOLDER="/etc/vulkan/implicit_layer.d" \
+		-DLIB_SUFFIX="" \
+		-DLIB_SUBFOLDER="$(DEB_HOST_MULTIARCH)" \
+		-DVULKAN_JSON_SUFFIX=""
+
+override_dh_auto_build:
+	$(MAKE) -C $(BUILD_DIR) -j$(or $(DEB_PARALLEL_JOBS),1)
+
+override_dh_auto_install:
+	$(MAKE) -C $(BUILD_DIR) install DESTDIR=$(CURDIR)/debian/tmp
+
+override_dh_auto_test:
+	# No automated tests.
+
+override_dh_auto_clean:
+	rm -rf $(BUILD_DIR)
