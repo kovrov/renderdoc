@@ -24,6 +24,9 @@
 
 #include "CaptureContext.h"
 #include <QApplication>
+#if defined(RENDERDOC_PLATFORM_LINUX)
+#include <QtGui/qguiapplication_platform.h>
+#endif
 #include <QDir>
 #include <QDirIterator>
 #include <QElapsedTimer>
@@ -488,7 +491,7 @@ rdcstr CaptureContext::LoadExtension(rdcstr name)
   for(QAction *a : m_MainWindow->GetMenuActions())
     CleanMenu(a);
 
-  m_RegisteredMenuItems.removeAll(NULL);
+  m_RegisteredMenuItems.removeAll(nullptr);
 
   return ret;
 }
@@ -1051,10 +1054,13 @@ void CaptureContext::LoadCaptureThreaded(const QString &captureFile, const Repla
         }
       }
 
-      if(m_CurWinSystem == WindowingSystem::XCB)
-        m_XCBConnection = QX11Info::connection();
-      else
-        m_X11Display = QX11Info::display();
+      if(auto *x11 = qApp->nativeInterface<QNativeInterface::QX11Application>())
+      {
+        if(m_CurWinSystem == WindowingSystem::XCB)
+          m_XCBConnection = x11->connection();
+        else
+          m_X11Display = x11->display();
+      }
     }
 
 #elif defined(RENDERDOC_PLATFORM_APPLE)

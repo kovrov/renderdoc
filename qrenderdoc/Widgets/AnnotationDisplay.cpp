@@ -50,7 +50,8 @@ AnnotationDisplay::AnnotationDisplay(ICaptureContext &ctx, bool standalone, QWid
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(m_Standalone ? 3 : 0);
+  int margin = m_Standalone ? 3 : 0;
+  layout->setContentsMargins(margin, margin, margin, margin);
 
   layout->addWidget(m_Tree);
 
@@ -305,7 +306,7 @@ void AnnotationDisplay::customContextMenu(QModelIndex index, QMenu *menu)
     if(path.empty())
       path = obj->name;
     else
-      path = obj->name + rdcstr(".") + path;
+      path = rdcstr(obj->name) + "." + path;
     obj = obj->GetParent();
   }
 

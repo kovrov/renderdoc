@@ -25,11 +25,10 @@
 #include <QAction>
 #include <QTime>
 #include <QMessageBox>
-#include <QTextCodec>
 #include <QListWidget>
 #include <QVarLengthArray>
 #include <QScrollBar>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QTextLayout>
 #include <QTextLine>
 #include <QLibrary>
@@ -160,7 +159,7 @@ void Font::Release()
 
 SurfaceImpl::SurfaceImpl()
 : device(0), painter(0), deviceOwned(false), painterOwned(false), x(0), y(0),
-	  unicodeMode(false), codePage(0), codecName(0), codec(0)
+	  unicodeMode(false), codePage(0), codecName(0)
 {}
 
 SurfaceImpl::~SurfaceImpl()
@@ -236,7 +235,7 @@ void SurfaceImpl::SetCodec(Font &font)
 			csid = CharacterSetID(FontCharacterSet(font));
 		if (csid != codecName) {
 			codecName = csid;
-			codec = QTextCodec::codecForName(csid);
+			codec = QStringDecoder(csid);
 		}
 	}
 }
@@ -330,7 +329,7 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc,
 {
 	PenColour(fore);
 	BrushColour(back);
-	GetPainter()->drawRoundRect(QRectFFromPRect(rc));
+	GetPainter()->drawRoundedRect(QRectFFromPRect(rc), 1, 1);
 }
 
 void SurfaceImpl::AlphaRectangle(PRectangle rc,
@@ -403,7 +402,7 @@ void SurfaceImpl::DrawTextNoClip(PRectangle rc,
 
 	GetPainter()->setBackground(QColorFromCA(back));
 	GetPainter()->setBackgroundMode(Qt::OpaqueMode);
-	QString su = codec->toUnicode(s, len);
+	QString su = codec(QByteArrayView(s, len));
 	GetPainter()->drawText(QPointF(rc.left, ybase), su);
 }
 
@@ -431,7 +430,7 @@ void SurfaceImpl::DrawTextTransparent(PRectangle rc,
 	PenColour(fore);
 
 	GetPainter()->setBackgroundMode(Qt::TransparentMode);
-	QString su = codec->toUnicode(s, len);
+	QString su = codec(QByteArrayView(s, len));
 	GetPainter()->drawText(QPointF(rc.left, ybase), su);
 }
 
@@ -461,7 +460,7 @@ void SurfaceImpl::MeasureWidths(Font &font,
 	if (!font.GetID())
 		return;
 	SetCodec(font);
-	QString su = codec->toUnicode(s, len);
+	QString su = codec(QByteArrayView(s, len));
 	QTextLayout tlay(su, *FontPointer(font), GetPaintDevice());
 	tlay.beginLayout();
 	QTextLine tl = tlay.createLine();
@@ -509,14 +508,14 @@ XYPOSITION SurfaceImpl::WidthText(Font &font, const char *s, int len)
 {
 	QFontMetricsF metrics(*FontPointer(font), device);
 	SetCodec(font);
-	QString string = codec->toUnicode(s, len);
-	return metrics.width(string);
+	QString string = codec(QByteArrayView(s, len));
+	return metrics.horizontalAdvance(string);
 }
 
 XYPOSITION SurfaceImpl::WidthChar(Font &font, char ch)
 {
 	QFontMetricsF metrics(*FontPointer(font), device);
-	return metrics.width(QChar::fromLatin1(ch));
+	return metrics.horizontalAdvance(QChar::fromLatin1(ch));
 }
 
 XYPOSITION SurfaceImpl::Ascent(Font &font)
@@ -651,8 +650,8 @@ void Window::SetPositionRelative(PRectangle rc, Window relativeTo)
 	ox += rc.left;
 	oy += rc.top;
 
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect rectDesk = desktop->availableGeometry(QPoint(ox, oy));
+	QScreen *screen = QApplication::primaryScreen();
+	QRect rectDesk = screen->availableGeometry();
 	/* do some corrections to fit into screen */
 	int sizex = rc.right - rc.left;
 	int sizey = rc.bottom - rc.top;
@@ -738,8 +737,8 @@ PRectangle Window::GetMonitorRect(Point pt)
 {
 	QPoint originGlobal = window(wid)->mapToGlobal(QPoint(0, 0));
 	QPoint posGlobal = window(wid)->mapToGlobal(QPoint(pt.x, pt.y));
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect rectScreen = desktop->availableGeometry(posGlobal);
+	QScreen *screen = QApplication::primaryScreen();
+	QRect rectScreen = screen->availableGeometry();
 	rectScreen.translate(-originGlobal.x(), -originGlobal.y());
 	return PRectangle(rectScreen.left(), rectScreen.top(),
 	        rectScreen.right(), rectScreen.bottom());
@@ -1080,7 +1079,8 @@ void ListWidget::mouseDoubleClickEvent(QMouseEvent * /* event */)
 
 QStyleOptionViewItem ListWidget::viewOptions() const
 {
-	QStyleOptionViewItem result = QListWidget::viewOptions();
+	QStyleOptionViewItem result;
+	result.initFrom(this);
 	result.state |= QStyle::State_Active;
 	return result;
 }

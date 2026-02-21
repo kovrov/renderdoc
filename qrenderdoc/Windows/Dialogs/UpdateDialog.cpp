@@ -49,7 +49,7 @@ UpdateDialog::UpdateDialog(QString updateResponse, QWidget *parent)
   setWindowFlags((windowFlags() | Qt::MSWindowsFixedSizeDialogHint) &
                  ~Qt::WindowContextHelpButtonHint);
 
-  QStringList lines = updateResponse.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+  QStringList lines = updateResponse.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
 
   m_NewVer = lines[0];
   m_URL = lines[1];
@@ -199,7 +199,7 @@ void UpdateDialog::on_update_clicked()
     });
 
     QObject::connect(
-        m_Request, OverloadedSlot<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
+        m_Request, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred),
         [this](QNetworkReply::NetworkError err) {
           ui->progressBar->setValue(0);
           ui->progressText->setText(tr("Network error:\n%1").arg(m_Request->errorString()));

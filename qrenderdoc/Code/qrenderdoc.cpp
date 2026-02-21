@@ -25,6 +25,9 @@
 #include <stdio.h>
 #include <QApplication>
 #include <QCommandLineParser>
+#if defined(RENDERDOC_PLATFORM_LINUX)
+#include <QtGui/qguiapplication_platform.h>
+#endif
 #include <QDir>
 #include <QFileInfo>
 #include <QRegularExpression>
@@ -38,8 +41,6 @@
 #include "Windows/Dialogs/CrashDialog.h"
 #include "Windows/MainWindow.h"
 #include "version.h"
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 9, 0)
 
 #include <QOperatingSystemVersion>
 
@@ -59,15 +60,6 @@ QString getOSVersion()
 
   return QSysInfo::prettyProductName();
 }
-
-#else
-
-QString getOSVersion()
-{
-  return QSysInfo::prettyProductName();
-}
-
-#endif
 
 #if ENABLE_UNIT_TESTS
 
@@ -173,19 +165,11 @@ static QString tr(const char *string)
 
 void hideOption(QCommandLineOption &opt)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
   opt.setFlags(QCommandLineOption::HiddenFromHelp);
-#else
-  opt.setHidden(true);
-#endif
 }
 
 int main(int argc, char *argv[])
 {
-  // call this as the very first thing - no-op on other platforms, but on linux it means
-  // XInitThreads will be called allowing driver access to xlib on multiple threads.
-  QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
-
   qInstallMessageHandler(sharedLogOutput);
 
   // there seems to be a persistent crash in QWidgetPrivate::subtractOpaqueSiblings where a widget
@@ -214,10 +198,8 @@ int main(int argc, char *argv[])
   QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
   QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
       Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor);
-#endif
 
   QApplication::setApplicationVersion(lit(FULL_VERSION_STRING));
 
@@ -577,7 +559,8 @@ int main(int argc, char *argv[])
     {
       GlobalEnvironment env;
 #if defined(RENDERDOC_PLATFORM_LINUX)
-      env.xlibDisplay = QX11Info::display();
+      if(auto *x11 = qApp->nativeInterface<QNativeInterface::QX11Application>())
+        env.xlibDisplay = x11->display();
       if(QGuiApplication::platformName() == lit("wayland"))
       {
         env.waylandDisplay = (wl_display *)AccessWaylandPlatformInterface("display", NULL);
