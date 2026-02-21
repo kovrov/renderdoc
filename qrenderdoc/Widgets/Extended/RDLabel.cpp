@@ -163,12 +163,12 @@ void RDLabel::leaveEvent(QEvent *event)
 
 void RDLabel::resizeEvent(QResizeEvent *event)
 {
-  const QPixmap *p = pixmap();
-  if(m_preserveRatio && p)
+  const QPixmap p = pixmap(Qt::ReturnByValue);
+  if(m_preserveRatio && !p.isNull())
   {
     QRect r = rect();
 
-    float pratio = float(p->width()) / float(p->height());
+    float pratio = float(p.width()) / float(p.height());
     float rratio = float(r.width()) / float(r.height());
 
     if(pratio > rratio)

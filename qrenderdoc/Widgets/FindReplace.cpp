@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include "FindReplace.h"
+#include <QCompleter>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include "Code/QRDUtils.h"
@@ -47,8 +48,8 @@ FindReplace::FindReplace(QList<ScintillaEdit *> &scintillas, QWidget *parent)
   RDLineEdit *edit = new RDLineEdit(this);
   ui->findText->setLineEdit(edit);
 
-  ui->findText->setAutoCompletion(false);
-  ui->replaceText->setAutoCompletion(false);
+  ui->findText->completer()->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+  ui->replaceText->completer()->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
 
   QObject::connect(edit, &RDLineEdit::keyPress, [this](QKeyEvent *event) {
     if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)

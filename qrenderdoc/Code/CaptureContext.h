@@ -34,7 +34,10 @@
 #include "ReplayManager.h"
 
 #if defined(RENDERDOC_PLATFORM_LINUX)
-#include <QX11Info>
+// Forward declarations for X11/XCB platform types (no QX11Info in Qt6)
+struct _XDisplay;
+typedef struct _XDisplay Display;
+struct xcb_connection_t;
 #endif
 
 class MainWindow;
@@ -150,7 +153,7 @@ public:
   void InvokeOntoUIThread(std::function<void()> callback) override;
 
   IReplayManager &Replay() override { return m_Replay; }
-  IExtensionManager &Extensions() override { return *this; }
+  IExtensionManager &Extensions() override { return static_cast<IExtensionManager &>(*this); }
   bool IsCaptureLoaded() override { return m_CaptureLoaded; }
   bool IsCaptureLocal() override { return m_CaptureLocal; }
   bool IsCaptureTemporary() override { return m_CaptureTemporary; }

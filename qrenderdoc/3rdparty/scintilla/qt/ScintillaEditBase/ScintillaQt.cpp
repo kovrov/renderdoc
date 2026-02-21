@@ -24,7 +24,8 @@
 #include <QMenu>
 #include <QScrollBar>
 #include <QTimer>
-#include <QTextCodec>
+#include <QStringDecoder>
+#include <QStringEncoder>
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -179,9 +180,8 @@ static QString StringFromSelectedText(const SelectionText &selectedText)
 	if (selectedText.codePage == SC_CP_UTF8) {
 		return QString::fromUtf8(selectedText.Data(), static_cast<int>(selectedText.Length()));
 	} else {
-		QTextCodec *codec = QTextCodec::codecForName(
-				CharacterSetID(selectedText.characterSet));
-		return codec->toUnicode(selectedText.Data(), static_cast<int>(selectedText.Length()));
+		QStringDecoder decoder(CharacterSetID(selectedText.characterSet));
+		return decoder(QByteArrayView(selectedText.Data(), static_cast<int>(selectedText.Length())));
 	}
 }
 
@@ -477,9 +477,8 @@ QString ScintillaQt::StringFromDocument(const char *s) const
 	if (IsUnicodeMode()) {
 		return QString::fromUtf8(s);
 	} else {
-		QTextCodec *codec = QTextCodec::codecForName(
-				CharacterSetID(CharacterSetOfDocument()));
-		return codec->toUnicode(s);
+		QStringDecoder decoder(CharacterSetID(CharacterSetOfDocument()));
+		return decoder(QByteArrayView(s));
 	}
 }
 
@@ -488,27 +487,28 @@ QByteArray ScintillaQt::BytesForDocument(const QString &text) const
 	if (IsUnicodeMode()) {
 		return text.toUtf8();
 	} else {
-		QTextCodec *codec = QTextCodec::codecForName(
-				CharacterSetID(CharacterSetOfDocument()));
-		return codec->fromUnicode(text);
+		QStringEncoder encoder(CharacterSetID(CharacterSetOfDocument()));
+		return encoder(text);
 	}
 }
 
 
 class CaseFolderDBCS : public CaseFolderTable {
-	QTextCodec *codec;
+	QByteArray encoding;
 public:
-	explicit CaseFolderDBCS(QTextCodec *codec_) : codec(codec_) {
+	explicit CaseFolderDBCS(const char *encoding_) : encoding(encoding_) {
 		StandardASCII();
 	}
 	virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed) {
 		if ((lenMixed == 1) && (sizeFolded > 0)) {
 			folded[0] = mapping[static_cast<unsigned char>(mixed[0])];
 			return 1;
-		} else if (codec) {
-			QString su = codec->toUnicode(mixed, static_cast<int>(lenMixed));
+		} else if (!encoding.isEmpty()) {
+			QStringDecoder decoder(encoding.constData());
+			QStringEncoder encoder(encoding.constData());
+			QString su = decoder(QByteArrayView(mixed, static_cast<int>(lenMixed)));
 			QString suFolded = su.toCaseFolded();
-			QByteArray bytesFolded = codec->fromUnicode(suFolded);
+			QByteArray bytesFolded = encoder(suFolded);
 
 			if (bytesFolded.length() < static_cast<int>(sizeFolded)) {
 				memcpy(folded, bytesFolded,  bytesFolded.length());
@@ -531,21 +531,22 @@ CaseFolder *ScintillaQt::CaseFolderForEncoding()
 			if (pdoc->dbcsCodePage == 0) {
 				CaseFolderTable *pcf = new CaseFolderTable();
 				pcf->StandardASCII();
-				QTextCodec *codec = QTextCodec::codecForName(charSetBuffer);
+				QStringDecoder decoder(charSetBuffer);
+				QStringEncoder encoder(charSetBuffer);
 				// Only for single byte encodings
 				for (int i=0x80; i<0x100; i++) {
 					char sCharacter[2] = "A";
 					sCharacter[0] = i;
-					QString su = codec->toUnicode(sCharacter, 1);
+					QString su = decoder(QByteArrayView(sCharacter, 1));
 					QString suFolded = su.toCaseFolded();
-					QByteArray bytesFolded = codec->fromUnicode(suFolded);
+					QByteArray bytesFolded = encoder(suFolded);
 					if (bytesFolded.length() == 1) {
 						pcf->SetTranslation(sCharacter[0], bytesFolded[0]);
 					}
 				}
 				return pcf;
 			} else {
-				return new CaseFolderDBCS(QTextCodec::codecForName(charSetBuffer));
+				return new CaseFolderDBCS(charSetBuffer);
 			}
 		}
 		return 0;
@@ -565,8 +566,8 @@ std::string ScintillaQt::CaseMapString(const std::string &s, int caseMapping)
 		return retMapped;
 	}
 
-	QTextCodec *codec = QTextCodec::codecForName(CharacterSetIDOfDocument());
-	QString text = codec->toUnicode(s.c_str(), static_cast<int>(s.length()));
+	QStringDecoder decoder(CharacterSetIDOfDocument());
+	QString text = decoder(QByteArrayView(s.c_str(), static_cast<int>(s.length())));
 
 	if (caseMapping == cmUpper) {
 		text = text.toUpper();

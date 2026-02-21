@@ -452,7 +452,7 @@ void PerformanceCounterSelection::Load()
         selectedCounters.insert(m_UuidToCounter[uuid]);
       }
 
-      SetSelectedCounters(selectedCounters.toList());
+      SetSelectedCounters(QList<GPUCounter>(selectedCounters.begin(), selectedCounters.end()));
     }
     else
     {

@@ -25,6 +25,8 @@
 #pragma once
 
 #include <QFrame>
+
+class QEnterEvent;
 #include "Code/Interface/QRDInterface.h"
 #include "Code/QRDUtils.h"
 
@@ -112,7 +114,7 @@ private slots:
   void resourceUsage_SplitByMarker_toggled();
 
 protected:
-  void enterEvent(QEvent *event) override;
+  void enterEvent(QEnterEvent *event) override;
   void showEvent(QShowEvent *event) override;
 
 private:

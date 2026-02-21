@@ -12,23 +12,19 @@ RenderDoc only supports building on 64-bit x86 linux. 32-Bit x86 and any ARM/oth
 
 Requirements for the core library and renderdoccmd are `libx11`, `libxcb`, `libxcb-keysyms` and `libGL`. The exact are packages for these vary by distribution.
 
-For qrenderdoc you need Qt5 >= 5.6 along with the 'svg' and 'x11extras' packages. You also need `python3-dev` for the python integration, and `bison`, `autoconf`, `automake` and `libpcre3-dev` for building the custom SWIG tool for generating bindings.
-
-On any distribution if you find qmake isn't available under its default name, or if `qmake -v` lists a Qt4 version, make sure you have qtchooser installed in your package manager and use it to select Qt5. This might be done by exporting `QT_SELECT=qt5`, but check with your distribution for details.
-
-For some distributions such as CentOS and Fedora, the Qt5 qmake command is `qmake-qt5`. To select this explicitly, pass `-DQMAKE_QT5_COMMAND=qmake-qt5` when invoking `cmake`.
+For qrenderdoc you need Qt6 along with the 'svg' module. You also need `python3-dev` for the python integration, and `bison`, `autoconf`, `automake` and `libpcre3-dev` for building the custom SWIG tool for generating bindings. Optionally, `libpyside6-dev` and `libshiboken6-dev` enable the PySide6 Python/Qt integration.
 
 Below are specific per-distribution instructions. If you know the required packages for another distribution, please share (or pull request this file!)
 
 ### Ubuntu
 
-For Ubuntu 18.04 or above you'll need:
+For Ubuntu 22.04 (Jammy) or above you'll need:
 
 ```
-sudo apt-get install libx11-dev libx11-xcb-dev mesa-common-dev libgl1-mesa-dev libxcb-keysyms1-dev pkg-config cmake python3-dev bison autoconf automake libpcre3-dev qt5-qmake libqt5svg5-dev libqt5x11extras5-dev
+sudo apt-get install libx11-dev libx11-xcb-dev mesa-common-dev libgl1-mesa-dev libxcb-keysyms1-dev pkg-config cmake python3-dev bison autoconf automake libpcre3-dev qt6-base-dev qt6-svg-dev libshiboken6-dev libpyside6-dev
 ```
 
-For the dependencies. On Ubuntu versions older than 18.04, the Qt in the default respositories will not be new enough or may be missing. You can use [Stephan Binner's ppas](https://launchpad.net/~beineri) to install a more recent version of Qt. At least 5.6.2 is required. If you choose to instead install an [official Qt release](https://download.qt.io/official_releases/qt/) or build Qt from source, add `-DQMAKE_QT5_COMMAND=/path/to/qmake` to your cmake arguments.
+Qt6 is available in the default repositories from Ubuntu 22.04 onwards. On older Ubuntu releases the Qt6 packages are not available; upgrade to 22.04+ or install Qt6 from an alternative source.
 
 ### Archlinux
 
@@ -82,18 +78,20 @@ sudo yum install libX11-devel libxcb-devel mesa-libGL-devel xcb-util-keysyms-dev
 
 ### Debian
 
-Debian 9+ (stretch):
+Debian 12 (bookworm) or later:
 ```
-sudo apt-get install libx11-dev libx11-xcb-dev mesa-common-dev libgl1-mesa-dev libxcb-keysyms1-dev cmake python3-dev bison autoconf automake libpcre3-dev qt5-qmake libqt5svg5-dev libqt5x11extras5-dev 
+sudo apt-get install libx11-dev libx11-xcb-dev mesa-common-dev libgl1-mesa-dev libxcb-keysyms1-dev pkg-config cmake python3-dev bison autoconf automake libpcre3-dev qt6-base-dev qt6-svg-dev libshiboken6-dev libpyside6-dev
 ```
+
+Qt6 is available in the default repositories from Debian 12 (bookworm) onwards. Older Debian releases do not ship Qt6 packages.
 
 ## Mac
 
-Mac requires Xcode version 12.2 or newer, CMake version 3.20 or newer, `autoconf`, `automake`, `pcre` and Qt5 version 5.15.2 or newer. If you're using [homebrew](http://brew.sh) then this will do the trick:
+Mac requires Xcode version 12.2 or newer, CMake version 3.20 or newer, `autoconf`, `automake`, `pcre` and Qt6. If you're using [homebrew](http://brew.sh) then this will do the trick:
 
 ```
-brew install cmake autoconf automake pcre qt5
-brew link qt5 --force
+brew install cmake autoconf automake pcre qt6
+brew link qt6 --force
 ```
 
 ## Android
@@ -200,4 +198,3 @@ wget https://dl.google.com/android/repository/android-ndk-r14b-darwin-x86_64.zip
 unzip android-ndk-r14b-darwin-x86_64.zip
 export ANDROID_NDK=$ANDROID_SDK/android-ndk-r14b
 ```
-

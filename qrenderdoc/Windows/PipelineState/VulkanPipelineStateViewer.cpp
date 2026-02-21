@@ -1275,7 +1275,7 @@ void VulkanPipelineStateViewer::addResourceRow(const ShaderResource *shaderRes,
           QFormatStr("Set %1, %2").arg(shaderRes->fixedBindSetOrSpace).arg(shaderRes->fixedBindNumber);
 
       if(!shaderRes->name.empty())
-        slotname += lit(": ") + shaderRes->name;
+        slotname += lit(": ") + ToQStr(shaderRes->name);
 
       if(shaderRes->bindArraySize > 1)
         slotname += QFormatStr("[%1]").arg(used.access.arrayElement);
@@ -1289,7 +1289,7 @@ void VulkanPipelineStateViewer::addResourceRow(const ShaderResource *shaderRes,
           QFormatStr("Set %1, %2").arg(shaderSamp->fixedBindSetOrSpace).arg(shaderSamp->fixedBindNumber);
 
       if(!shaderSamp->name.empty())
-        slotname += lit(": ") + shaderSamp->name;
+        slotname += lit(": ") + QString(shaderSamp->name);
 
       if(shaderSamp->bindArraySize > 1)
         slotname += QFormatStr("[%1]").arg(used.access.arrayElement);
@@ -1622,7 +1622,7 @@ void VulkanPipelineStateViewer::addConstantBlockRow(const ConstantBlock *cblock,
           QFormatStr("Set %1, %2").arg(cblock->fixedBindSetOrSpace).arg(cblock->fixedBindNumber);
 
       if(!cblock->name.empty())
-        slotname += lit(": ") + cblock->name;
+        slotname += lit(": ") + QString(cblock->name);
 
       if(cblock->bindArraySize > 1)
         slotname += QFormatStr("[%1]").arg(used.access.arrayElement);
@@ -3853,7 +3853,7 @@ void VulkanPipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const VKPipe::
       slotname += QFormatStr("Set %1, %2").arg(b.fixedBindSetOrSpace).arg(b.fixedBindNumber);
 
       if(!b.name.empty())
-        slotname += lit(": ") + b.name;
+        slotname += lit(": ") + QString(b.name);
 
       if(b.bindArraySize > 1)
         slotname += QFormatStr("[%1]").arg(used.access.arrayElement);
@@ -4017,7 +4017,7 @@ void VulkanPipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const VKPipe::
             QFormatStr("Set %1, %2").arg(shaderSamp->fixedBindSetOrSpace).arg(shaderSamp->fixedBindNumber);
 
         if(!shaderSamp->name.empty())
-          slotname += lit(": ") + shaderSamp->name;
+          slotname += lit(": ") + QString(shaderSamp->name);
 
         if(shaderSamp->bindArraySize > 1)
           slotname += QFormatStr("[%1]").arg(used.access.arrayElement);
@@ -4681,7 +4681,7 @@ const ShaderResource *VulkanPipelineStateViewer::exportDescriptorHTML(const Used
         QFormatStr("Set %1, %2").arg(shaderRes->fixedBindSetOrSpace).arg(shaderRes->fixedBindNumber);
 
     if(!shaderRes->name.empty())
-      slotname += lit(": ") + shaderRes->name;
+      slotname += lit(": ") + ToQStr(shaderRes->name);
 
     if(shaderRes->bindArraySize > 1)
       slotname += QFormatStr("[%1]").arg(used.access.arrayElement);

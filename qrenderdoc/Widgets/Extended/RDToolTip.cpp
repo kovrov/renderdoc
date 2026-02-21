@@ -24,9 +24,9 @@
 
 #include "RDToolTip.h"
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMouseEvent>
 #include <QProxyStyle>
+#include <QScreen>
 #include <QStyleOptionFrame>
 #include <QStylePainter>
 
@@ -36,7 +36,10 @@ void ICustomToolTipDisplay::showTip(QWidget *widget, QString text, QModelIndex i
 
   // estimate, as this is not easily queryable
   const QPoint cursorSize(16, 16);
-  const QRect screenAvailGeom = QApplication::desktop()->availableGeometry(p);
+  QScreen *screen = QGuiApplication::screenAt(p);
+  if(!screen)
+    screen = QGuiApplication::primaryScreen();
+  const QRect screenAvailGeom = screen->availableGeometry();
 
   // start with the tooltip placed bottom-right of the cursor, as the default
   QRect tooltipRect;
@@ -94,7 +97,7 @@ void RDToolTip::paintEvent(QPaintEvent *ev)
 {
   QStylePainter p(this);
   QStyleOptionFrame opt;
-  opt.init(this);
+  opt.initFrom(this);
   p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
   p.end();
 
@@ -110,8 +113,9 @@ void RDToolTip::mousePressEvent(QMouseEvent *e)
 void RDToolTip::sendListenerEvent(QMouseEvent *e)
 {
   QMouseEvent *duplicate =
-      new QMouseEvent(e->type(), mouseListener->mapFromGlobal(e->globalPos()), e->windowPos(),
-                      e->globalPos(), e->button(), e->buttons(), e->modifiers(), e->source());
+      new QMouseEvent(e->type(), mouseListener->mapFromGlobal(e->globalPosition().toPoint()),
+                      e->scenePosition(), e->globalPosition(), e->button(), e->buttons(),
+                      e->modifiers(), e->pointingDevice());
   QCoreApplication::postEvent(mouseListener, duplicate);
 }
 
@@ -131,7 +135,7 @@ void RDToolTip::resizeEvent(QResizeEvent *e)
 {
   QStyleHintReturnMask frameMask;
   QStyleOption option;
-  option.init(this);
+  option.initFrom(this);
   if(style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
     setMask(frameMask.region);
 

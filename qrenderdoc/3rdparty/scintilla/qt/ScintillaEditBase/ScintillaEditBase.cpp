@@ -13,6 +13,7 @@
 #include "PlatQt.h"
 
 #include <QApplication>
+#include <QElapsedTimer>
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QInputContext>
 #endif
@@ -152,7 +153,7 @@ void ScintillaEditBase::paintEvent(QPaintEvent *event)
 
 void ScintillaEditBase::wheelEvent(QWheelEvent *event)
 {
-	if (event->orientation() == Qt::Horizontal) {
+	if (event->angleDelta().x() != 0) {
 		if (horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
 			event->ignore();
 		else
@@ -161,7 +162,7 @@ void ScintillaEditBase::wheelEvent(QWheelEvent *event)
 		if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
 			// Zoom! We play with the font sizes in the styles.
 			// Number of steps/line is ignored, we just care if sizing up or down
-			if (event->delta() > 0) {
+			if (event->angleDelta().y() > 0) {
 				sqt->KeyCommand(SCI_ZOOMIN);
 			} else {
 				sqt->KeyCommand(SCI_ZOOMOUT);
@@ -293,7 +294,7 @@ void ScintillaEditBase::mousePressEvent(QMouseEvent *event)
 
 	emit buttonPressed(event);
 
-	if (event->button() == Qt::MidButton &&
+	if (event->button() == Qt::MiddleButton &&
 	    QApplication::clipboard()->supportsSelection()) {
 		SelectionPosition selPos = sqt->SPositionFromLocation(
 					pos, false, false, sqt->UserVirtualSpace());
@@ -501,7 +502,7 @@ static std::vector<int> MapImeIndicators(QInputMethodEvent *event)
 			if (format.hasProperty(QTextFormat::BackgroundBrush)) // win32, linux
 				indicator = SC_INDICATOR_TARGET;
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
 			if (charFormat.underlineStyle() == QTextCharFormat::SingleUnderline) {
 				QColor uc = charFormat.underlineColor();
 				if (uc.lightness() < 2) { // osx
@@ -610,7 +611,7 @@ QVariant ScintillaEditBase::inputMethodQuery(Qt::InputMethodQuery query) const
 	int line = send(SCI_LINEFROMPOSITION, pos);
 
 	switch (query) {
-		case Qt::ImMicroFocus:
+		case Qt::ImCursorRectangle:
 		{
 			int startPos = (preeditPos >= 0) ? preeditPos : pos;
 			Point pt = sqt->LocationFromPosition(startPos);

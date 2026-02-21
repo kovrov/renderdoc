@@ -74,7 +74,6 @@ EditorWrapper::EditorWrapper(PythonShell *parent) : QFrame(parent), m_PyShell(pa
   layout()->addWidget(m_Warning);
   layout()->addWidget(m_Scintilla);
   layout()->setSpacing(0);
-  layout()->setMargin(0);
   layout()->setContentsMargins(0, 0, 0, 0);
 
   setTitle(QString());
@@ -293,7 +292,7 @@ PythonShell::PythonShell(ICaptureContext &ctx, QWidget *parent)
        e->key() != Qt::Key_Down)
       return;
     ui->lineInput->setFocus(Qt::OtherFocusReason);
-    QApplication::postEvent(ui->lineInput, new QKeyEvent(*e));
+    QApplication::postEvent(ui->lineInput, e->clone());
   });
 
   m_ToolTip = new RDToolTip(this);
