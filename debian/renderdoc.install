@@ -1,0 +1,14 @@
+usr/bin/qrenderdoc
+usr/bin/renderdoccmd
+usr/lib/*/librenderdoc.so
+etc/vulkan/implicit_layer.d/renderdoc_capture*.json
+usr/share/applications/renderdoc.desktop
+usr/share/icons/hicolor/scalable/mimetypes/application-x-renderdoc-capture.svg
+usr/share/pixmaps/renderdoc-icon-16x16.xpm
+usr/share/pixmaps/renderdoc-icon-32x32.xpm
+usr/share/menu/renderdoc
+usr/share/thumbnailers/renderdoc.thumbnailer
+usr/share/mime/packages/renderdoc-capture.xml
+usr/share/doc/renderdoc/README
+usr/share/doc/renderdoc/LICENSE.md
+usr/share/doc/renderdoc/magic

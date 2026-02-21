@@ -1,0 +1,52 @@
+Source: renderdoc
+Section: devel
+Priority: optional
+Maintainer: Sergey Kovrov <kovrov@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+               autoconf,
+               automake,
+               bison,
+               cmake,
+               libgl-dev,
+               libpcre3-dev,
+               libpyside6-dev,
+               libshiboken6-dev,
+               libvulkan-dev,
+               libx11-dev,
+               libx11-xcb-dev,
+               libxcb-keysyms1-dev,
+               libxcb1-dev,
+               pkg-config,
+               python3-dev,
+               qt6-base-dev,
+               qt6-base-private-dev,
+               qt6-svg-dev,
+               qt6-tools-dev-tools,
+               qt6-tools-dev
+Standards-Version: 4.7.0
+Homepage: https://renderdoc.org
+Vcs-Git: https://github.com/baldurk/renderdoc.git -b v1.x-qt6
+Vcs-Browser: https://github.com/baldurk/renderdoc/tree/v1.x-qt6
+
+Package: renderdoc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: vulkan-tools
+Description: Graphics frame-capture debugger
+ RenderDoc is a free MIT-licensed stand-alone graphics debugger that allows
+ quick and easy single-frame capture and detailed introspection of any
+ application using Vulkan, D3D11, D3D12, OpenGL or OpenGL ES across Windows,
+ Linux, Android and Apple platforms.
+ .
+ This package includes the qrenderdoc GUI, the renderdoccmd command-line
+ tool, the librenderdoc capture/replay library and the Vulkan implicit layer.
+
+Package: librenderdoc-dev
+Architecture: any
+Section: libdevel
+Depends: ${misc:Depends}, renderdoc (= ${binary:Version})
+Description: Graphics frame-capture debugger - development header
+ RenderDoc is a free MIT-licensed stand-alone graphics debugger.
+ .
+ This package contains the public C API header (renderdoc_app.h) for
+ injecting the RenderDoc capture layer into an application at runtime.
