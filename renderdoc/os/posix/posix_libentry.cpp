@@ -80,13 +80,14 @@ void library_loaded()
   }
 }
 
-// wrap in a struct to enforce ordering. This file is
-// linked last, so all other global struct constructors
-// should run first
+// To ensure RegisterSetting() is always called before ProcessConfig() wrap
+// library_loaded call in a constructor and set init_priority attribute to
+// a lowest possible value (65535).
+// All other global struct constructors should run first (init_priority 200).
 struct init
 {
   init() { library_loaded(); }
-} do_init;
+} do_init RDOC_INIT_PRIORITY(65535);
 
 // we want to be sure the constructor and library_loaded are included even when this is in a static
 // library, so we have this global function that does nothing but takes the address.
