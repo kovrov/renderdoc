@@ -75,6 +75,12 @@
 
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#define RDOC_INIT_PRIORITY(N) __attribute__((init_priority(N)))
+#else
+#define RDOC_INIT_PRIORITY(N)
+#endif
+
 // pre-declare some OS-specific functions we need to reference in the header here.
 
 namespace OSUtility

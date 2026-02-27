@@ -54,12 +54,17 @@ CONFIG_SUPPORT_TYPE(rdcarray<rdcstr>);
 
 #undef CONFIG_SUPPORT_TYPE
 
-#define RDOC_CONFIG(type, name, defaultValue, description)                                \
-  static ConfigVarRegistration<type> CONCAT(config, __LINE__)(                            \
-      STRING_LITERAL(STRINGIZE(name)), defaultValue, false, STRING_LITERAL(description)); \
-  type name()                                                                             \
-  {                                                                                       \
-    return CONCAT(config, __LINE__).value();                                              \
+// RDOC_CONFIG globals must initialize before do_init calls ProcessConfig().
+// Priority 200 places them in .init_array.00200, which is higher priority
+// than the value of do_init global variable attribute (65535).
+
+#define RDOC_CONFIG(type, name, defaultValue, description)                                 \
+  static ConfigVarRegistration<type> CONCAT(config, __LINE__)                              \
+      RDOC_INIT_PRIORITY(200)                                                              \
+      (STRING_LITERAL(STRINGIZE(name)), defaultValue, false, STRING_LITERAL(description)); \
+  type name()                                                                              \
+  {                                                                                        \
+    return CONCAT(config, __LINE__).value();                                               \
   }
 #define RDOC_EXTERN_CONFIG(type, name) extern type name();
 
@@ -67,21 +72,23 @@ CONFIG_SUPPORT_TYPE(rdcarray<rdcstr>);
 // in nightly builds and of course in development builds
 #if RENDERDOC_STABLE_BUILD
 
-#define RDOC_DEBUG_CONFIG(type, name, defaultValue, description)                         \
-  static ConfigVarRegistration<type> CONCAT(config, __LINE__)(                           \
-      STRING_LITERAL(STRINGIZE(name)), defaultValue, true, STRING_LITERAL(description)); \
-  type name()                                                                            \
-  {                                                                                      \
-    static const type ret = defaultValue;                                                \
-    return ret;                                                                          \
+#define RDOC_DEBUG_CONFIG(type, name, defaultValue, description)                          \
+  static ConfigVarRegistration<type> CONCAT(config, __LINE__)                             \
+      RDOC_INIT_PRIORITY(200)                                                             \
+      (STRING_LITERAL(STRINGIZE(name)), defaultValue, true, STRING_LITERAL(description)); \
+  type name()                                                                             \
+  {                                                                                       \
+    static const type ret = defaultValue;                                                 \
+    return ret;                                                                           \
   }
 #else
 
-#define RDOC_DEBUG_CONFIG(type, name, defaultValue, description)                         \
-  static ConfigVarRegistration<type> CONCAT(config, __LINE__)(                           \
-      STRING_LITERAL(STRINGIZE(name)), defaultValue, true, STRING_LITERAL(description)); \
-  type name()                                                                            \
-  {                                                                                      \
-    return CONCAT(config, __LINE__).value();                                             \
+#define RDOC_DEBUG_CONFIG(type, name, defaultValue, description)                          \
+  static ConfigVarRegistration<type> CONCAT(config, __LINE__)                             \
+      RDOC_INIT_PRIORITY(200)                                                             \
+      (STRING_LITERAL(STRINGIZE(name)), defaultValue, true, STRING_LITERAL(description)); \
+  type name()                                                                             \
+  {                                                                                       \
+    return CONCAT(config, __LINE__).value();                                              \
   }
 #endif
