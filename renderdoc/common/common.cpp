@@ -267,29 +267,33 @@ uint64_t Log2Ceil(uint64_t value)
 #endif
 
 // deliberately leak so it doesn't get destroyed before our static RenderDoc destructor needs it
-static rdcstr *logfile = new rdcstr;
+static rdcstr &getLogfile()
+{
+  static rdcstr *logfile = new rdcstr;
+  return *logfile;
+}
 static FileIO::LogFileHandle *logfileHandle = NULL;
 
 const char *rdclog_getfilename()
 {
-  return logfile->c_str();
+  return getLogfile().c_str();
 }
 
 void rdclog_filename(const char *filename)
 {
-  rdcstr previous = *logfile;
+  rdcstr previous = getLogfile();
 
-  *logfile = "";
+  getLogfile() = "";
   if(filename && filename[0])
-    *logfile = filename;
+    getLogfile() = filename;
 
   FileIO::logfile_close(logfileHandle, rdcstr());
 
   logfileHandle = NULL;
 
-  if(!logfile->empty())
+  if(!getLogfile().empty())
   {
-    logfileHandle = FileIO::logfile_open(*logfile);
+    logfileHandle = FileIO::logfile_open(getLogfile());
 
     if(logfileHandle && !previous.empty())
     {
@@ -314,7 +318,7 @@ void rdclog_enableoutput()
 void rdclog_closelog()
 {
   log_output_enabled = false;
-  FileIO::logfile_close(logfileHandle, *logfile);
+  FileIO::logfile_close(logfileHandle, getLogfile());
 }
 
 void rdclog_flush()
