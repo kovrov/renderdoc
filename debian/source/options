@@ -1,1 +1,1 @@
-extend-diff-ignore = ^(\.vscode|\.github)/|^\.clangd$
+extend-diff-ignore = ^(\.vscode|\.github|\.cache|\.claude)/|^\.clangd$|^compile_commands\.json$

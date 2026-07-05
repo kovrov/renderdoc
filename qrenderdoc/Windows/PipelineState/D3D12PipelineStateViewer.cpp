@@ -3155,7 +3155,7 @@ void D3D12PipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const D3D12Pipe
                       .arg(shaderInput->fixedBindNumber);
 
       if(!shaderInput->name.empty())
-        regname += lit(": ") + shaderInput->name;
+        regname += lit(": ") + ToQStr(shaderInput->name);
 
       if(shaderInput->bindArraySize > 1)
         regname += QFormatStr("[%1]").arg(used.access.arrayElement);
@@ -3192,7 +3192,7 @@ void D3D12PipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const D3D12Pipe
                       .arg(shaderInput->fixedBindNumber);
 
       if(!shaderInput->name.empty())
-        regname += lit(": ") + shaderInput->name;
+        regname += lit(": ") + ToQStr(shaderInput->name);
 
       if(shaderInput->bindArraySize > 1)
         regname += QFormatStr("[%1]").arg(used.access.arrayElement);

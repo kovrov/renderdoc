@@ -100,6 +100,15 @@ else()
         # using an URL to a zip directly so we don't clone the history etc
         URL ${RENDERDOC_PCRE_PACKAGE}
         BUILD_IN_SOURCE 1
+        # The pcre release tarball's bundled configure/aclocal.m4/Makefile.in have mtimes
+        # that don't consistently postdate configure.ac/Makefile.am once extracted, which
+        # makes automake's generated rules think they're stale and try to regenerate them
+        # with the exact aclocal/automake version pcre was packaged with (long gone from
+        # current distros). Re-touch the generated files last so make doesn't try.
+        PATCH_COMMAND find <SOURCE_DIR> \( -name configure.ac -o -name Makefile.am -o -name acinclude.m4 \) -exec touch {} +
+        COMMAND touch <SOURCE_DIR>/aclocal.m4
+        COMMAND touch <SOURCE_DIR>/configure <SOURCE_DIR>/config.h.in
+        COMMAND find <SOURCE_DIR> -name Makefile.in -exec touch {} +
         CONFIGURE_COMMAND CC=${SWIG_CONFIGURE_CC} CXX=${SWIG_CONFIGURE_CXX} CFLAGS=-fPIC CXXFLAGS=-fPIC ${SET_SYSTEM_PATH_COMMAND} ./configure --prefix=${CMAKE_BINARY_DIR} --disable-shared --disable-maintainer-mode > /dev/null
         BUILD_COMMAND ${GENERATOR_MAKE} ${GENERATOR_MAKE_PARAMS} > /dev/null 2>&1
         INSTALL_COMMAND ${GENERATOR_MAKE} install > /dev/null 2>&1)

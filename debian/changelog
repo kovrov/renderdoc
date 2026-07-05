@@ -1,3 +1,15 @@
+renderdoc (1.45+qt6-0ppa1~resolute1) resolute; urgency=medium
+
+  * Rebase Qt6 migration branch onto upstream v1.45.
+  * Drop libpcre3-dev build-dependency: no longer packaged on 26.04/resolute.
+  * Vendor pcre 8.45 (like swig) so the build farm doesn't need network
+    access when the system pcre header is missing.
+  * Fix autotools timestamp issue that broke the vendored pcre build with
+    automake/aclocal versions newer than pcre 8.45 was packaged with.
+  * Fix Qt6 ambiguous operator+= build error in D3D12PipelineStateViewer.
+
+ -- Sergey Kovrov <kovrov@gmail.com>  Sat, 04 Jul 2026 00:00:00 +0000
+
 renderdoc (1.43+qt6-0ppa1~questing1) questing; urgency=medium
 
   * Upstream release 1.43.

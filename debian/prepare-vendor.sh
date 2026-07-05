@@ -13,7 +13,11 @@ mkdir -p "$VENDOR_DIR"
 SWIG_URL="https://github.com/baldurk/swig/archive/renderdoc-modified-7.zip"
 SWIG_DEST="$VENDOR_DIR/swig-renderdoc-modified-7.zip"
 
-# pcre is provided by libpcre3-dev on the target distro — no need to vendor it.
+# pcre is vendored too, since Launchpad build farm has no network access:
+# if libpcre3-dev is unavailable on the target distro (e.g. 26.04/resolute),
+# CMake builds this pcre 8.45 tarball from source instead of the system lib.
+PCRE_URL="https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.gz"
+PCRE_DEST="$VENDOR_DIR/pcre-8.45.tar.gz"
 
 download() {
     local url="$1" dest="$2"
@@ -34,6 +38,7 @@ download() {
 }
 
 download "$SWIG_URL"  "$SWIG_DEST"
+download "$PCRE_URL"  "$PCRE_DEST"
 
 # Create the upstream orig tarball from the current git HEAD.
 # The upstream version is extracted from debian/changelog.
