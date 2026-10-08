@@ -1,8 +1,25 @@
-renderdoc (1.46+qt6-0ppa1~questing1) questing; urgency=medium
+renderdoc (1.46+qt6-0ppa1~resolute1) resolute; urgency=medium
 
-  * Upstream release 1.46.
+  * Rebase Qt6 migration branch onto upstream v1.46.
+  * Fix startup crash with PySide6 6.10 on Python 3.14: clear the Python
+    exception left set by the PySide6 module imports.
+  * Port upstream's new tooltip and Python shell code to Qt6.
+  * Fix debian/rules so the build honours parallel=N.
+  * Add libtool build-dependency for the vendored pcre autoreconf.
 
- -- Sergey Kovrov <kovrov@gmail.com>  Sun, 04 Oct 2026 16:56:21 -0500
+ -- Sergey Kovrov <kovrov@gmail.com>  Wed, 07 Oct 2026 22:59:28 -0500
+
+renderdoc (1.45+qt6-0ppa1~resolute1) resolute; urgency=medium
+
+  * Rebase Qt6 migration branch onto upstream v1.45.
+  * Drop libpcre3-dev build-dependency: no longer packaged on 26.04/resolute.
+  * Vendor pcre 8.45 (like swig) so the build farm doesn't need network
+    access when the system pcre header is missing.
+  * Fix autotools timestamp issue that broke the vendored pcre build with
+    automake/aclocal versions newer than pcre 8.45 was packaged with.
+  * Fix Qt6 ambiguous operator+= build error in D3D12PipelineStateViewer.
+
+ -- Sergey Kovrov <kovrov@gmail.com>  Sat, 04 Jul 2026 00:00:00 +0000
 
 renderdoc (1.43+qt6-0ppa1~questing1) questing; urgency=medium
 
