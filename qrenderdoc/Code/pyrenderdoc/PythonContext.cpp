@@ -629,17 +629,31 @@ void PythonContext::GlobalInit(PersistentConfig &config)
     else
       qCritical() << "Failed to load PySide6.QtCore";
 
+    // Shiboken::Module::import() can leave a Python exception set even when it reports success
+    // (e.g. from an internal capsule/API probe). If left pending, it poisons every later Python
+    // C API call on this thread - notably the SWIG module-registry lookup used to pass
+    // ICaptureContext into the embedded interpreter, which then dereferences a NULL module list.
+    // Clear defensively, same as the "threading" import below.
+    if(PyErr_Occurred())
+      PyErr_Clear();
+
     Shiboken::AutoDecRef gui(Shiboken::Module::import("PySide6.QtGui"));
     if(!gui.isNull())
       SbkPySide6_QtGuiTypes = Shiboken::Module::getTypes(gui);
     else
       qCritical() << "Failed to load PySide6.QtGui";
 
+    if(PyErr_Occurred())
+      PyErr_Clear();
+
     Shiboken::AutoDecRef widgets(Shiboken::Module::import("PySide6.QtWidgets"));
     if(!widgets.isNull())
       SbkPySide6_QtWidgetsTypes = Shiboken::Module::getTypes(widgets);
     else
       qCritical() << "Failed to load PySide6.QtWidgets";
+
+    if(PyErr_Occurred())
+      PyErr_Clear();
   }
 #endif
 
