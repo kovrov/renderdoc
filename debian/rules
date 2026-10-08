@@ -9,9 +9,9 @@ export DH_VERBOSE=1
 
 # Vendor archives bundled in the source package (see debian/vendor/).
 # These are passed to CMake so the build does not need network access.
-# pcre is NOT vendored — libpcre3-dev from the distro is used instead.
 VENDOR_DIR      := $(CURDIR)/debian/vendor
 SWIG_ARCHIVE    := $(VENDOR_DIR)/swig-renderdoc-modified-7.zip
+PCRE_ARCHIVE    := $(VENDOR_DIR)/pcre-8.45.tar.gz
 
 # Out-of-source build directory (renderdoc forbids in-source builds).
 BUILD_DIR := $(CURDIR)/debian/build
@@ -29,6 +29,7 @@ override_dh_auto_configure:
 		-DBUILD_VERSION_DIST_VER="$(DEB_VERSION_UPSTREAM)" \
 		-DBUILD_VERSION_DIST_CONTACT="https://github.com/baldurk/renderdoc/issues" \
 		-DRENDERDOC_SWIG_PACKAGE="file://$(SWIG_ARCHIVE)" \
+		-DRENDERDOC_PCRE_PACKAGE="file://$(PCRE_ARCHIVE)" \
 		-DVULKAN_LAYER_FOLDER="/etc/vulkan/implicit_layer.d" \
 		-DLIB_SUFFIX="" \
 		-DLIB_SUBFOLDER="$(DEB_HOST_MULTIARCH)" \

@@ -13,7 +13,9 @@ mkdir -p "$VENDOR_DIR"
 SWIG_URL="https://github.com/baldurk/swig/archive/renderdoc-modified-7.zip"
 SWIG_DEST="$VENDOR_DIR/swig-renderdoc-modified-7.zip"
 
-# pcre is provided by libpcre3-dev on the target distro — no need to vendor it.
+# libpcre3-dev is gone from Ubuntu after noble, so pcre is vendored too.
+PCRE_URL="https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.gz"
+PCRE_DEST="$VENDOR_DIR/pcre-8.45.tar.gz"
 
 download() {
     local url="$1" dest="$2"
@@ -34,6 +36,7 @@ download() {
 }
 
 download "$SWIG_URL"  "$SWIG_DEST"
+download "$PCRE_URL"  "$PCRE_DEST"
 
 # Create the upstream orig tarball from the current git HEAD.
 # The upstream version is extracted from debian/changelog.
